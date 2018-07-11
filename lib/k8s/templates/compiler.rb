@@ -1,9 +1,6 @@
-require "k8s/templates/compiler/version"
+# frozen_string_literal: true
 
-module K8s
-  module Templates
-    module Compiler
-      # Your code goes here...
-    end
-  end
-end
+require 'k8s/templates/compiler/version'
+
+require 'k8s/templates/compiler/cli'
+require 'k8s/templates/compiler/options'
