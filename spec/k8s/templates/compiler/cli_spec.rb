@@ -9,4 +9,9 @@ RSpec.describe K8s::Templates::Compiler::Cli do
     compiler = K8s::Templates::Compiler::Cli.new
     expect(compiler.run.is_a?(Integer)).to eq(true)
   end
+
+  it 'has no environment' do
+    compiler = K8s::Templates::Compiler::Cli.new
+    expect(compiler.run).to eq(1)
+  end
 end

@@ -10,11 +10,9 @@ require 'benchmark'
 compiler = K8s::Templates::Compiler::Cli.new
 result = 0
 
-puts ARGV.inspect
-
 time = Benchmark.realtime do
   result = compiler.run
 end
 
-puts "Finished in #{time} seconds" # if compiler.options[:debug]
+puts "Finished in #{time} seconds" if compiler.options[:debug]
 exit result

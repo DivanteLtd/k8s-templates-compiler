@@ -5,14 +5,23 @@ module K8s
     module Compiler
       # Command Line Interface
       class Cli
-        # attr_reader :options
+        attr_reader :options
 
-        # def initialize
-        #   @options = {}
-        # end
+        STATUS_SUCCESS  = 0
+        STATUS_ERROR    = 1
 
-        def run
-          0
+        def initialize
+          @options = {}
+        end
+
+        def run(args = ARGV)
+          @options = Options.new.parse(args)
+
+          STATUS_SUCCESS
+        rescue OptionParser::MissingArgument => e
+          warn e.message
+          warn 'For usage information, use --help'
+          STATUS_ERROR
         end
       end
     end
