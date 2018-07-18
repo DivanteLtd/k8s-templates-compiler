@@ -50,7 +50,7 @@ module K8s
         def parse_project_vars()
           values = {}
 
-          config_file = Dir.pwd + '/' + @options[:config_dir] + '/' + @options[:environment] + '/values.yml'
+          config_file = Dir.pwd + '/' + @options[:config_dir] + '/' + @options[:environment] + '/values.yaml'
           if File.exist? config_file
             data = YAML.load_file(config_file)
             values = data unless data.nil?

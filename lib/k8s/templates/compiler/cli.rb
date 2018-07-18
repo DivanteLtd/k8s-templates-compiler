@@ -31,6 +31,8 @@ module K8s
         def run_compilation
           templates = Dir[Dir.pwd + '/' + @options[:template_dir] + '/*.erb']
 
+          # For removing files
+          files = []
           templates.each do |template_file|
             filename = File.basename(template_file).gsub('.erb', '')
 
@@ -43,9 +45,22 @@ module K8s
             next if output.strip.empty?
 
             file_path = Dir.pwd + '/' + @options[:output_dir] + '/' + filename
+
             File.open(file_path, 'w+') do |f|
               f.write(output)
             end
+
+            files.push << file_path
+          end
+
+          remove_old_files files
+        end
+
+        def remove_old_files(files)
+          allfiles = Dir[Dir.pwd + '/' + @options[:output_dir] + '/*']
+
+          (allfiles - files).each do |file|
+            File.delete(file)
           end
         end
       end
