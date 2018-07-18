@@ -104,5 +104,4 @@ RSpec.describe K8s::Templates::Compiler::Options do
       # expect(options[:values][:namespace][:name]).to eq('test')
     end
   end
-
 end

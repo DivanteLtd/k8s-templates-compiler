@@ -29,37 +29,49 @@ module K8s
         private
 
         def run_compilation
-          templates = Dir[Dir.pwd + '/' + @options[:template_dir] + '/*.erb']
-
           # For removing files
-          files = []
+          @files = []
+
           templates.each do |template_file|
             filename = File.basename(template_file).gsub('.erb', '')
 
             puts "Compiling #{filename}" if @options[:debug]
 
-            contents = File.open(template_file, 'rb').read
-            compiler = K8s::Templates::Compiler::Renderer.new
-            output = compiler.render(contents, options)
-
+            output = content(template_file)
             next if output.strip.empty?
 
-            file_path = Dir.pwd + '/' + @options[:output_dir] + '/' + filename
-
-            File.open(file_path, 'w+') do |f|
-              f.write(output)
-            end
-
-            files.push << file_path
+            write_file(output, filename)
           end
 
-          remove_old_files files
+          remove_old_files
         end
 
-        def remove_old_files(files)
+        def templates
+          Dir[Dir.pwd + '/' + @options[:template_dir] + '/*.erb']
+        end
+
+        def content(template_file)
+          contents = File.open(template_file, 'rb').read
+          compiler = K8s::Templates::Compiler::Renderer.new
+          output = compiler.render(contents, @options)
+
+          output
+        end
+
+        def write_file(output, filename)
+          file_path = Dir.pwd + '/' + @options[:output_dir] + '/' + filename
+
+          File.open(file_path, 'w+') do |f|
+            f.write(output)
+          end
+
+          @files.push << file_path
+        end
+
+        def remove_old_files
           allfiles = Dir[Dir.pwd + '/' + @options[:output_dir] + '/*']
 
-          (allfiles - files).each do |file|
+          (allfiles - @files).each do |file|
             File.delete(file)
           end
         end

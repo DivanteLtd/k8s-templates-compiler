@@ -8,6 +8,8 @@ module K8s
     module Compiler
       # Options parser
       class Options
+        # rubocop:disable Metrics/MethodLength
+        # rubocop:disable Metrics/AbcSize
         def parse(command_line_args)
           @options = {}
           OptionParser.new do |opts|
@@ -25,7 +27,11 @@ module K8s
               @options[:template_dir] = t
             end
 
-            opts.on('-c', '--config [PATH]', 'Path to directory with config files for environment. Default: ./config') do |c|
+            opts.on(
+              '-c',
+              '--config [PATH]',
+              'Path to directory with config files for environment. Default: ./config'
+            ) do |c|
               @options[:config_dir] = c
             end
 
@@ -36,18 +42,23 @@ module K8s
 
           raise OptionParser::MissingArgument, 'environment' if @options[:environment].nil?
 
-          @options[:template_dir] = 'template' unless @options[:template_dir]
-          @options[:config_dir] = 'config' unless @options[:config_dir]
-          @options[:output_dir] = 'env/' + @options[:environment] unless @options[:output_dir]
-
+          default_values
           parse_project_vars
 
           @options
         end
+        # rubocop:enable Metrics/MethodLength
+        # rubocop:enable Metrics/AbcSize
 
         protected
 
-        def parse_project_vars()
+        def default_values
+          @options[:template_dir] = 'template' unless @options[:template_dir]
+          @options[:config_dir] = 'config' unless @options[:config_dir]
+          @options[:output_dir] = 'env/' + @options[:environment] unless @options[:output_dir]
+        end
+
+        def parse_project_vars
           values = {}
 
           config_file = Dir.pwd + '/' + @options[:config_dir] + '/' + @options[:environment] + '/values.yaml'

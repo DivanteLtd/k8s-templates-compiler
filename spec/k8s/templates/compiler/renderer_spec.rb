@@ -58,8 +58,5 @@ metadata:
 '
     compiler = K8s::Templates::Compiler::Renderer.new
     expect(compiler.render(contents, options)).to eq(expected)
-
-
   end
 end
- 
