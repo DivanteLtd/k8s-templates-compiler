@@ -29,7 +29,7 @@ module K8s
         private
 
         def run_compiler
-          templates = Dir.pwd + '/' + @options[:template_dir] + '/*.erb'
+          templates = Dir[Dir.pwd + '/' + @options[:template_dir] + '/*.erb']
 
           templates.each do |template_file|
             filename = File.basename(template_file).gsub('.erb', '')
