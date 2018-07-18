@@ -1,0 +1,10 @@
+AllCops:
+  TargetRubyVersion: 2.4
+
+Metrics/LineLength:
+  Max: 120
+
+Metrics/BlockLength:
+  Max: 500
+  Include:
+    - spec/**/*.rb
