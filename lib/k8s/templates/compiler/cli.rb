@@ -17,7 +17,7 @@ module K8s
         def run(args = ARGV)
           @options = Options.new.parse(args)
 
-          run_compiler
+          run_compilation
 
           STATUS_SUCCESS
         rescue OptionParser::MissingArgument => e
@@ -28,13 +28,13 @@ module K8s
 
         private
 
-        def run_compiler
+        def run_compilation
           templates = Dir[Dir.pwd + '/' + @options[:template_dir] + '/*.erb']
 
           templates.each do |template_file|
             filename = File.basename(template_file).gsub('.erb', '')
 
-            puts "Compiling #{filename}" if compiler.options[:debug]
+            puts "Compiling #{filename}" if @options[:debug]
 
             contents = File.open(template_file, 'rb').read
             compiler = K8s::Templates::Compiler::Renderer.new
