@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'erb'
+
 module K8s
   module Templates
     module Compiler
