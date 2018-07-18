@@ -89,8 +89,6 @@ RSpec.describe K8s::Templates::Compiler::Options do
       parser = K8s::Templates::Compiler::Options.new
       options = parser.parse(['--environment', 'empty', '-c', 'spec/files/options'])
 
-      puts options[:values].inspect
-
       expect(options[:values].is_a?(Hash)).to eq(true)
       expect(options[:values].empty?).to eq(true)
     end
@@ -99,9 +97,7 @@ RSpec.describe K8s::Templates::Compiler::Options do
       parser = K8s::Templates::Compiler::Options.new
       options = parser.parse(['--environment', 'withnamespace', '-c', 'spec/files/options'])
 
-      puts options[:values]
-
-      # expect(options[:values][:namespace][:name]).to eq('test')
+      expect(options[:values][:namespace][:name]).to eq('test')
     end
   end
 end
