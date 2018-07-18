@@ -28,12 +28,17 @@ module K8s
             opts.on('-c', '--config [PATH]', 'Path to directory with config files for environment. Default: ./config') do |c|
               @options[:config_dir] = c
             end
+
+            opts.on('-o', '--output [PATH]', 'Path to directory with rendered files. Default: ./env') do |o|
+              @options[:output_dir] = o + '/' + @options[:environment]
+            end
           end.parse(command_line_args)
 
           raise OptionParser::MissingArgument, 'environment' if @options[:environment].nil?
 
           @options[:template_dir] = 'template' unless @options[:template_dir]
           @options[:config_dir] = 'config' unless @options[:config_dir]
+          @options[:output_dir] = 'env/' + @options[:environment] unless @options[:output_dir]
 
           parse_project_vars
 
@@ -44,7 +49,7 @@ module K8s
 
         def parse_project_vars()
           values = {}
-          
+
           config_file = Dir.pwd + '/' + @options[:config_dir] + '/' + @options[:environment] + '/values.yml'
           if File.exist? config_file
             data = YAML.load_file(config_file)

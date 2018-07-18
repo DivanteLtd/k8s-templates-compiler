@@ -68,6 +68,20 @@ RSpec.describe K8s::Templates::Compiler::Options do
 
       expect(options[:config_dir]).to eq('zupa')
     end
+
+    it 'has default output dir' do
+      parser = K8s::Templates::Compiler::Options.new
+      options = parser.parse(['--environment', 'dev'])
+
+      expect(options[:output_dir]).to eq('env/dev')
+    end
+
+    it 'has custome config dir' do
+      parser = K8s::Templates::Compiler::Options.new
+      options = parser.parse(['--environment', 'dev', '-o', 'zupa'])
+
+      expect(options[:output_dir]).to eq('zupa/dev')
+    end
   end
 
   context 'project variables' do
