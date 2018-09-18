@@ -36,7 +36,7 @@ RSpec.describe K8s::Templates::Compiler::Cli do
 
       expect(compiler).to receive(:run_compilation).once
 
-      compiler.run(['--environment', 'dev', '-c', 'tmp/config'])
+      compiler.run(['--environment', 'dev', '-c', '.tmp/config'])
     end
 
     it 'has all-environment option' do
@@ -44,7 +44,7 @@ RSpec.describe K8s::Templates::Compiler::Cli do
 
       expect(compiler).to receive(:run_compilation).twice
 
-      compiler.run(['--all-environments', '-c', 'tmp/config'])
+      compiler.run(['--all-environments', '-c', '.tmp/config'])
     end
 
     after(:context) do
