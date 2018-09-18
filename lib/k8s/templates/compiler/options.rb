@@ -23,6 +23,10 @@ module K8s
               @options[:environment] = e
             end
 
+            opts.on('--all-environments', 'Compile all environments') do |_e|
+              @options[:all_environments] = true
+            end
+
             opts.on('-t', '--template [PATH]', 'Path to directory with template files. Default: ./template') do |t|
               @options[:template_dir] = t
             end
@@ -40,10 +44,16 @@ module K8s
             end
           end.parse(command_line_args)
 
-          raise OptionParser::MissingArgument, 'environment' if @options[:environment].nil?
+          if @options[:environment].nil? && @options[:all_environments] != true
+            raise OptionParser::MissingArgument, 'environment'
+          end
+
+          if @options[:environment] && @options[:all_environments] == true
+            raise OptionParser::InvalidOption, 'environment or all_environments'
+          end
 
           default_values
-          parse_project_vars
+          parse_project_vars if @options[:environment]
 
           @options
         end
@@ -55,7 +65,7 @@ module K8s
         def default_values
           @options[:template_dir] = 'template' unless @options[:template_dir]
           @options[:config_dir] = 'config' unless @options[:config_dir]
-          @options[:output_dir] = 'env/' + @options[:environment] unless @options[:output_dir]
+          @options[:output_dir] = 'env/' + @options[:environment] if !@options[:output_dir] && @options[:environment]
         end
 
         def parse_project_vars

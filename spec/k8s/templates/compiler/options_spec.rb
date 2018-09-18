@@ -5,7 +5,7 @@ RSpec.describe K8s::Templates::Compiler::Options do
     expect(K8s::Templates::Compiler::Options.method_defined?(:parse)).to eq(true)
   end
 
-  context 'cli options' do
+  context 'cli environment options' do
     it 'has environment' do
       parser = K8s::Templates::Compiler::Options.new
       options = parser.parse(['--environment', 'dev'])
@@ -18,17 +18,34 @@ RSpec.describe K8s::Templates::Compiler::Options do
       expect(options[:environment]).to eq('dev')
     end
 
-    it 'has no environment' do
+    it 'has all-environments' do
+      parser = K8s::Templates::Compiler::Options.new
+      options = parser.parse(['--all-environments'])
+
+      expect(options[:all_environments]).to eq(true)
+    end
+
+    it 'has no environment and no all-environments' do
       parser = K8s::Templates::Compiler::Options.new
 
       expect { parser.parse([]) }.to raise_error(OptionParser::MissingArgument)
+    end
+
+    it 'has environment and all-environments' do
+      parser = K8s::Templates::Compiler::Options.new
+
+      expect do
+        parser.parse(['--environment', 'dev', '--all-environments'])
+      end.to raise_error(OptionParser::InvalidOption)
     end
 
     it 'return array' do
       compiler = K8s::Templates::Compiler::Options.new
       expect(compiler.parse(['--environment', 'dev']).is_a?(Hash)).to eq(true)
     end
+  end
 
+  context 'cli another options' do
     it 'has debug mode' do
       parser = K8s::Templates::Compiler::Options.new
       options = parser.parse(['--environment', 'dev', '--debug'])

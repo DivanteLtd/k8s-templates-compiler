@@ -17,7 +17,10 @@ module K8s
         def run(args = ARGV)
           @options = Options.new.parse(args)
 
-          run_compilation
+          environments(args).each do |environment|
+            options_for_environment(args, environment)
+            run_compilation
+          end
 
           STATUS_SUCCESS
         rescue OptionParser::MissingArgument => e
@@ -27,6 +30,40 @@ module K8s
         end
 
         private
+
+        def environments(args)
+          environments = if args.include?('--all-environments')
+                           environments_from_config_dir
+                         else
+                           [@options[:environment]]
+                         end
+
+          args.delete('--all-environments')
+
+          environments
+        end
+
+        def environments_from_config_dir
+          environments = []
+
+          files = Dir[Dir.pwd + '/' + @options[:config_dir] + '/*']
+          files.each do |path|
+            environments << path.sub!(Dir.pwd + '/' + @options[:config_dir] + '/', '')
+          end
+
+          environments
+        end
+
+        def options_for_environment(args, environment)
+          puts "Environment: #{environment}" if @options[:debug]
+
+          if environment
+            args << '--environment'
+            args << environment
+          end
+
+          @options = Options.new.parse(args)
+        end
 
         def run_compilation
           # For removing files
