@@ -40,7 +40,7 @@ module K8s
             end
 
             opts.on('-o', '--output [PATH]', 'Path to directory with rendered files. Default: ./env') do |o|
-              @options[:output_dir] = o + '/' + @options[:environment]
+              @options[:output_dir] = o
             end
           end.parse(command_line_args)
 
@@ -65,7 +65,7 @@ module K8s
         def default_values
           @options[:template_dir] = 'template' unless @options[:template_dir]
           @options[:config_dir] = 'config' unless @options[:config_dir]
-          @options[:output_dir] = 'env/' + @options[:environment] if !@options[:output_dir] && @options[:environment]
+          @options[:output_dir] = 'env' unless @options[:output_dir]
         end
 
         def parse_project_vars
