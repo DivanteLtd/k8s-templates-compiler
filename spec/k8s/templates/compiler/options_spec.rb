@@ -45,6 +45,29 @@ RSpec.describe K8s::Templates::Compiler::Options do
     end
   end
 
+  context 'cli output dir options' do
+    it 'has default output dir' do
+      parser = K8s::Templates::Compiler::Options.new
+      options = parser.parse(['--environment', 'dev'])
+
+      expect(options[:output_dir]).to eq('env')
+    end
+
+    it 'has custome output dir' do
+      parser = K8s::Templates::Compiler::Options.new
+      options = parser.parse(['--environment', 'dev', '-o', 'zupa'])
+
+      expect(options[:output_dir]).to eq('zupa')
+    end
+
+    it 'has custome output dir' do
+      parser = K8s::Templates::Compiler::Options.new
+      options = parser.parse(['-o', 'zupa', '--environment', 'dev'])
+
+      expect(options[:output_dir]).to eq('zupa')
+    end
+  end
+
   context 'cli another options' do
     it 'has debug mode' do
       parser = K8s::Templates::Compiler::Options.new
@@ -84,20 +107,6 @@ RSpec.describe K8s::Templates::Compiler::Options do
       options = parser.parse(['--environment', 'dev', '-c', 'zupa'])
 
       expect(options[:config_dir]).to eq('zupa')
-    end
-
-    it 'has default output dir' do
-      parser = K8s::Templates::Compiler::Options.new
-      options = parser.parse(['--environment', 'dev'])
-
-      expect(options[:output_dir]).to eq('env/dev')
-    end
-
-    it 'has custome config dir' do
-      parser = K8s::Templates::Compiler::Options.new
-      options = parser.parse(['--environment', 'dev', '-o', 'zupa'])
-
-      expect(options[:output_dir]).to eq('zupa/dev')
     end
   end
 

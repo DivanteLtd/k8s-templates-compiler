@@ -96,7 +96,7 @@ module K8s
         end
 
         def write_file(output, filename)
-          file_path = Dir.pwd + '/' + @options[:output_dir] + '/' + filename
+          file_path = Dir.pwd + '/' + @options[:output_dir] + '/' + @options[:environment] + '/' + filename
 
           File.open(file_path, 'w+') do |f|
             f.write(output)
@@ -106,7 +106,7 @@ module K8s
         end
 
         def remove_old_files
-          allfiles = Dir[Dir.pwd + '/' + @options[:output_dir] + '/*']
+          allfiles = Dir[Dir.pwd + '/' + @options[:output_dir] + '/' + @options[:environment] + '/*']
 
           (allfiles - @files).each do |file|
             File.delete(file)
