@@ -21,15 +21,28 @@ module K8s
         end
 
         def values
-          values_from_file.merge(values_from_cli)
+          values = values_from_file.merge(values_from_cli)
+
+          if @cli_options[:create] && !File.exist?(config_file)
+            write_config_file(values)
+          end
+
+          values
         end
 
         protected
 
+        def config_dir_full
+          Dir.pwd + '/' + @config_dir + '/' + @name
+        end
+
+        def config_file
+          config_dir_full + '/values.yaml'
+        end
+
         def values_from_file
           values = {}
 
-          config_file = Dir.pwd + '/' + @config_dir + '/' + @name + '/values.yaml'
           if File.exist? config_file
             data = YAML.load_file(config_file)
             values = data unless data.nil?
@@ -44,6 +57,13 @@ module K8s
           values = JSON.parse(@cli_options[:values], symbolize_names: true) if @cli_options[:values]
 
           values
+        end
+
+        def write_config_file(values)
+          FileUtils.mkdir_p(config_dir_full)
+          File.open(config_file, 'w') do |out|
+            YAML.dump(values, out)
+          end
         end
       end
     end
