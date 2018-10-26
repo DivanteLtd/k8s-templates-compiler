@@ -1,0 +1,7 @@
+---
+
+:namespace:
+  :name: test
+
+:project:
+  :php_version: 7.2.1

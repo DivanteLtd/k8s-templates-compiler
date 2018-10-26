@@ -1,0 +1,19 @@
+---
+
+:namespace:
+  :name: dev
+
+:pv:
+  :mysql:
+    :storage_class_name: manual
+    :storage: 5Gi
+    :access_modes: ReadWriteMany
+
+:resources:
+  :mysql:
+    :limits:
+      :cpu: 1000m
+      :memory: 1024Mi
+    :requests:
+      :cpu: 100m
+      :memory: 128Mi

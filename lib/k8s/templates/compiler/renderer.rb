@@ -7,10 +7,10 @@ module K8s
     module Compiler
       # Renderer based on ERB
       class Renderer
-        def render(contents, options)
+        def render(contents, environment)
           b = binding
-          b.local_variable_set(:env, options[:environment])
-          b.local_variable_set(:values, options[:values])
+          b.local_variable_set(:env, environment.name)
+          b.local_variable_set(:values, environment.values)
 
           renderer = ERB.new(contents, nil, '-')
           output = renderer.result(b)

@@ -1,0 +1,14 @@
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql
+  namespace: <%= values[:namespace][:name] %>
+spec:
+  accessModes:
+    - <%= values[:pv][:mysql][:access_modes] %>
+  storageClassName: <%= values[:pv][:mysql][:storage_class_name] %>
+  resources:
+    requests:
+      storage: <%= values[:pv][:mysql][:storage] %>

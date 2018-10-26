@@ -9,7 +9,7 @@ RSpec.describe K8s::Templates::Compiler::Cli do
 
   it 'return integer' do
     compiler = K8s::Templates::Compiler::Cli.new
-    expect(compiler.run.is_a?(Integer)).to eq(true)
+    expect(compiler.run(['--environment', 'dev']).is_a?(Integer)).to eq(true)
   end
 
   it 'has no environment' do
@@ -36,7 +36,7 @@ RSpec.describe K8s::Templates::Compiler::Cli do
 
       expect(compiler).to receive(:run_compilation).once
 
-      compiler.run(['--environment', 'dev', '-c', '.tmp/config'])
+      expect(compiler.run(['--environment', 'dev', '-c', '.tmp/config'])).to eq(0)
     end
 
     it 'has all-environment option' do
@@ -44,7 +44,7 @@ RSpec.describe K8s::Templates::Compiler::Cli do
 
       expect(compiler).to receive(:run_compilation).twice
 
-      compiler.run(['--all-environments', '-c', '.tmp/config'])
+      expect(compiler.run(['--all-environments', '-c', '.tmp/config'])).to eq(0)
     end
 
     after(:context) do

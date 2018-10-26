@@ -108,22 +108,47 @@ RSpec.describe K8s::Templates::Compiler::Options do
 
       expect(options[:config_dir]).to eq('zupa')
     end
+
+    it 'has create env if not exists option' do
+      parser = K8s::Templates::Compiler::Options.new
+      options = parser.parse(['--environment', 'dev', '--create'])
+
+      expect(options[:create]).to eq(true)
+
+      parser = K8s::Templates::Compiler::Options.new
+      options = parser.parse(['--create', '--environment', 'dev'])
+
+      expect(options[:create]).to eq(true)
+    end
   end
 
   context 'project variables' do
-    it 'has empty options values for empty file' do
+    it 'should return error if values are not valid json' do
       parser = K8s::Templates::Compiler::Options.new
-      options = parser.parse(['--environment', 'empty', '-c', 'spec/files/options'])
 
-      expect(options[:values].is_a?(Hash)).to eq(true)
-      expect(options[:values].empty?).to eq(true)
+      expect do
+        parser.parse(
+          [
+            '--environment', 'withnamespace',
+            '-c', 'spec/unit/files/options',
+            '--values', 'some text'
+          ]
+        )
+      end.to raise_error(OptionParser::InvalidOption)
     end
 
-    it 'has empty options values for namespace' do
+    it 'can parse values from command line option' do
       parser = K8s::Templates::Compiler::Options.new
-      options = parser.parse(['--environment', 'withnamespace', '-c', 'spec/files/options'])
 
-      expect(options[:values][:namespace][:name]).to eq('test')
+      options = parser.parse(
+        [
+          '--environment', 'withnamespace',
+          '-c', 'spec/unit/files/options',
+          '--values', '{"namespace": {"name": "overwrited"}}'
+        ]
+      )
+
+      expect(options[:values]).to eq('{"namespace": {"name": "overwrited"}}')
     end
   end
 end
