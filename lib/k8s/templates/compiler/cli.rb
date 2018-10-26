@@ -24,9 +24,9 @@ module K8s
 
           STATUS_SUCCESS
         rescue OptionParser::MissingArgument => e
-          warn e.message
-          warn 'For usage information, use --help'
-          STATUS_ERROR
+          handle_error(e)
+        rescue K8s::Templates::Compiler::Error => e
+          handle_error(e)
         end
 
         private
@@ -87,8 +87,6 @@ module K8s
         def write_file(output, filename, environment)
           file_path = environment_dir_path(environment) + '/' + filename
 
-          FileUtils.mkdir_p(environment_dir_path(environment)) unless File.exist?(environment_dir_path(environment))
-
           File.open(file_path, 'w+') do |f|
             f.write(output)
           end
@@ -105,7 +103,21 @@ module K8s
         end
 
         def environment_dir_path(environment)
-          Dir.pwd + '/' + @options[:output_dir] + '/' + environment.name
+          path = Dir.pwd + '/' + @options[:output_dir] + '/' + environment.name
+
+          unless File.exist?(path)
+            raise Error, 'Environment not exists' unless @options[:create]
+
+            FileUtils.mkdir_p(path)
+          end
+
+          path
+        end
+
+        def handle_error(error)
+          warn error.message
+          warn 'For usage information, use --help'
+          STATUS_ERROR
         end
       end
     end
