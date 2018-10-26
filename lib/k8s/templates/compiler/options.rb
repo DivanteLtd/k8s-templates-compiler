@@ -15,8 +15,12 @@ module K8s
           OptionParser.new do |opts|
             opts.banner = 'Usage: k8s-templates-compile [options]'
 
-            opts.on('-d', '--debug', 'Enable debug mode') do |d|
-              @options[:debug] = d
+            opts.on('-d', '--debug', 'Enable debug mode') do |_d|
+              @options[:debug] = true
+            end
+
+            opts.on('--create', 'Create environment if not exist') do |_c|
+              @options[:create] = true
             end
 
             opts.on('-e', '--environment [ENVIRONMENT]', 'Environment name') do |e|
@@ -42,18 +46,15 @@ module K8s
             opts.on('-o', '--output [PATH]', 'Path to directory with rendered files. Default: ./env') do |o|
               @options[:output_dir] = o
             end
+
+            opts.on('--values [JSON]', 'Environment variables in json format') do |v|
+              @options[:values] = v
+            end
           end.parse(command_line_args)
 
-          if @options[:environment].nil? && @options[:all_environments] != true
-            raise OptionParser::MissingArgument, 'environment'
-          end
-
-          if @options[:environment] && @options[:all_environments] == true
-            raise OptionParser::InvalidOption, 'environment or all_environments'
-          end
+          validate
 
           default_values
-          parse_project_vars if @options[:environment]
 
           @options
         end
@@ -62,22 +63,28 @@ module K8s
 
         protected
 
+        def validate
+          validate_environment
+
+          raise OptionParser::InvalidOption, 'values are not valid json' if @options[:values] && JSONHelper.valid_json?(
+            @options[:values]
+          ) != true
+        end
+
+        def validate_environment
+          if @options[:environment].nil? && @options[:all_environments] != true
+            raise OptionParser::MissingArgument, 'environment'
+          end
+
+          raise OptionParser::InvalidOption, 'environment or all_environments' if @options[:environment] && @options[
+            :all_environments
+          ] == true
+        end
+
         def default_values
           @options[:template_dir] = 'template' unless @options[:template_dir]
           @options[:config_dir] = 'config' unless @options[:config_dir]
           @options[:output_dir] = 'env' unless @options[:output_dir]
-        end
-
-        def parse_project_vars
-          values = {}
-
-          config_file = Dir.pwd + '/' + @options[:config_dir] + '/' + @options[:environment] + '/values.yaml'
-          if File.exist? config_file
-            data = YAML.load_file(config_file)
-            values = data unless data.nil?
-          end
-
-          @options[:values] = values
         end
       end
     end

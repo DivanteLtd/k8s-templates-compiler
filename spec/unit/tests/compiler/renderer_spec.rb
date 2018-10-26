@@ -6,6 +6,7 @@ RSpec.describe K8s::Templates::Compiler::Renderer do
   end
 
   it 'return the same string' do
+    environment = instance_double('Environment', name: 'zupa', values: {})
     compiler = K8s::Templates::Compiler::Renderer.new
     contents = '---
 
@@ -15,11 +16,11 @@ metadata:
   name: zupa
 '
 
-    expect(compiler.render(contents, {})).to eq(contents)
+    expect(compiler.render(contents, environment)).to eq(contents)
   end
 
   it 'return content filled environment param' do
-    options = { environment: 'zupa' }
+    environment = instance_double('Environment', name: 'zupa', values: {})
     contents = '---
 
 apiVersion: "v1"
@@ -36,11 +37,11 @@ metadata:
   name: zupa
 '
     compiler = K8s::Templates::Compiler::Renderer.new
-    expect(compiler.render(contents, options)).to eq(expected)
+    expect(compiler.render(contents, environment)).to eq(expected)
   end
 
   it 'return content filled params from config file' do
-    options = { environment: 'zupa', values: { namespace: { name: 'zupa' } } }
+    environment = instance_double('Environment', name: 'zupa', values: { namespace: { name: 'zupa' } })
     contents = '---
 
 apiVersion: "v1"
@@ -57,6 +58,6 @@ metadata:
   name: zupa
 '
     compiler = K8s::Templates::Compiler::Renderer.new
-    expect(compiler.render(contents, options)).to eq(expected)
+    expect(compiler.render(contents, environment)).to eq(expected)
   end
 end

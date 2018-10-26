@@ -12,14 +12,14 @@ module K8s
 
         def initialize
           @options = {}
+          @environment = nil
         end
 
         def run(args = ARGV)
           @options = Options.new.parse(args)
 
           environments(args).each do |environment|
-            options_for_environment(args, environment)
-            run_compilation
+            run_compilation(Environment.new(environment, options))
           end
 
           STATUS_SUCCESS
@@ -54,18 +54,7 @@ module K8s
           environments
         end
 
-        def options_for_environment(args, environment)
-          puts "Environment: #{environment}" if @options[:debug]
-
-          if environment
-            args << '--environment'
-            args << environment
-          end
-
-          @options = Options.new.parse(args)
-        end
-
-        def run_compilation
+        def run_compilation(environment)
           # For removing files
           @files = []
 
@@ -74,29 +63,31 @@ module K8s
 
             puts "Compiling #{filename}" if @options[:debug]
 
-            output = content(template_file)
+            output = content(template_file, environment)
             next if output.strip.empty?
 
-            write_file(output, filename)
+            write_file(output, filename, environment)
           end
 
-          remove_old_files
+          remove_old_files(environment)
         end
 
         def templates
           Dir[Dir.pwd + '/' + @options[:template_dir] + '/*.erb']
         end
 
-        def content(template_file)
+        def content(template_file, environment)
           contents = File.open(template_file, 'rb').read
           compiler = K8s::Templates::Compiler::Renderer.new
-          output = compiler.render(contents, @options)
+          output = compiler.render(contents, environment)
 
           output
         end
 
-        def write_file(output, filename)
-          file_path = Dir.pwd + '/' + @options[:output_dir] + '/' + @options[:environment] + '/' + filename
+        def write_file(output, filename, environment)
+          file_path = environment_dir_path(environment) + '/' + filename
+
+          FileUtils.mkdir_p(environment_dir_path(environment)) unless File.exist?(environment_dir_path(environment))
 
           File.open(file_path, 'w+') do |f|
             f.write(output)
@@ -105,12 +96,16 @@ module K8s
           @files.push << file_path
         end
 
-        def remove_old_files
-          allfiles = Dir[Dir.pwd + '/' + @options[:output_dir] + '/' + @options[:environment] + '/*']
+        def remove_old_files(environment)
+          allfiles = Dir[environment_dir_path(environment) + '/*']
 
           (allfiles - @files).each do |file|
             File.delete(file)
           end
+        end
+
+        def environment_dir_path(environment)
+          Dir.pwd + '/' + @options[:output_dir] + '/' + environment.name
         end
       end
     end

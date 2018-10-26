@@ -1,0 +1,20 @@
+<% if env == 'dev' -%>
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: <%= values[:namespace][:name] %>-mysql-pv
+  namespace: <%= values[:namespace][:name] %>
+spec:
+  storageClassName: <%= values[:pv][:mysql][:storage_class_name] %>
+  capacity:
+    storage: <%= values[:pv][:mysql][:storage] %>
+  accessModes:
+    - <%= values[:pv][:mysql][:access_modes] %>
+<% if env == 'dev' -%>
+  hostPath:
+    path: "/data/<%= values[:namespace][:name] %>/mysql"
+    type: DirectoryOrCreate
+<% end -%>
+<% end -%>
