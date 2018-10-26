@@ -23,9 +23,7 @@ module K8s
         def values
           values = values_from_file.merge(values_from_cli)
 
-          if @cli_options[:create] && !File.exist?(config_file)
-            write_config_file(values)
-          end
+          write_config_file(values) if @cli_options[:create] && !File.exist?(config_file)
 
           values
         end
