@@ -66,14 +66,14 @@ module K8s
             output = content(template_file, environment)
             next if output.strip.empty?
 
-            write_file(output, filename, environment)
+            write_file(output, template_file, environment)
           end
 
           remove_old_files(environment)
         end
 
         def templates
-          Dir[Dir.pwd + '/' + @options[:template_dir] + '/*.erb']
+          Dir[template_dir_path + '/**/*.erb']
         end
 
         def content(template_file, environment)
@@ -84,9 +84,13 @@ module K8s
           output
         end
 
-        def write_file(output, filename, environment)
-          file_path = environment_dir_path(environment) + '/' + filename
+        def write_file(output, template_file, environment)
+          filename = File.basename(template_file).gsub('.erb', '')
+          environment_dir_path = environment_dir_path(environment)
+          dir_path = environment_dir_path + File.dirname(template_file).gsub(template_dir_path, '')
+          file_path = dir_path + '/' + filename
 
+          create_nested_dir(dir_path)
           File.open(file_path, 'w+') do |f|
             f.write(output)
           end
@@ -98,8 +102,16 @@ module K8s
           allfiles = Dir[environment_dir_path(environment) + '/*']
 
           (allfiles - @files).each do |file|
-            File.delete(file)
+            File.delete(file) if File.file?(file)
           end
+
+          allfiles.each do |file|
+            Dir.delete(file) if File.directory?(file) && Dir.empty?(file)
+          end
+        end
+
+        def create_nested_dir(dir_path)
+          FileUtils.mkdir_p(dir_path) unless File.directory?(dir_path)
         end
 
         def environment_dir_path(environment)
@@ -112,6 +124,10 @@ module K8s
           end
 
           path
+        end
+
+        def template_dir_path
+          Dir.pwd + '/' + @options[:template_dir]
         end
 
         def handle_error(error)

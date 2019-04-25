@@ -72,6 +72,25 @@ RSpec.describe K8s::Templates::Compiler do
     end
   end
 
+  context 'compile one existing env with nested dir in template dir' do
+    it 'shoule create env manifests' do
+      env = 'dev'
+
+      compiler = K8s::Templates::Compiler::Cli.new
+
+      compiler.run(
+        [
+          '-e', env,
+          '-c', 'spec/integration/files/config',
+          '-t', 'spec/integration/files/template',
+          '-o', @output_dir
+        ]
+      )
+
+      expect(File.exist?(@test_output_dir + '/' + env + '/nested/50-mysql.dep.yaml')).to be true
+    end
+  end
+
   after do
     FileUtils.rm_r(@output_dir)
   end

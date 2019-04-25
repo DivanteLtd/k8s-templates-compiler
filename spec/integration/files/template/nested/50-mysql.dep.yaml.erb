@@ -1,0 +1,55 @@
+---
+
+apiVersion: "extensions/v1beta1"
+kind: "Deployment"
+metadata:
+  name: mysql
+  namespace: <%= values[:namespace][:name] %>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      application: mysql
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: "RollingUpdate"
+  template:
+    metadata:
+      labels:
+        application: mysql
+    spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: mysql
+      - name: config
+        configMap:
+          name: mysql
+          items:
+          - key: mysql.cnf
+            path: mysql.cnf
+      containers:
+      - name: mysql
+        image: 'percona:5.7'
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3306
+        envFrom:
+          - configMapRef:
+              name: database
+        resources:
+          limits:
+            cpu: <%= values[:resources][:mysql][:limits][:cpu] %>
+            memory: <%= values[:resources][:mysql][:limits][:memory] %>
+          requests:
+            cpu: <%= values[:resources][:mysql][:requests][:cpu] %>
+            memory: <%= values[:resources][:mysql][:requests][:memory] %>
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+          subPath: data
+        - name: config
+          mountPath: /etc/mysql/conf.d/wurth.cnf
+          subPath: mysql.cnf
